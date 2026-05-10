@@ -15,8 +15,10 @@ import { setOutputSink, supportsSinkId } from "@/lib/audio/sink";
 import {
   INPUT_LANGUAGES,
   OUTPUT_LANGUAGES,
+  findLanguage,
   isOutputLanguage,
 } from "@/lib/realtime/languages";
+import { audioExtension, downloadBlob, timestampSlug } from "@/lib/download";
 import styles from "./Translator.module.scss";
 
 export function Translator() {
@@ -121,6 +123,39 @@ export function Translator() {
     setTgtLang(srcLang);
   }, [srcLang, tgtLang]);
 
+  const handleDownloadTranscript = useCallback(() => {
+    if (session.transcript.length === 0) return;
+    const lines = session.transcript.flatMap((t) => {
+      const ts = new Date(t.ts).toLocaleTimeString();
+      const srcName = findLanguage(t.src).label.toUpperCase();
+      const tgtName = findLanguage(t.tgt).label.toUpperCase();
+      return [
+        `[${ts}] ${findLanguage(t.src).flag} → ${findLanguage(t.tgt).flag}`,
+        `${srcName}: ${t.srcText}`,
+        `${tgtName}: ${t.tgtText}`,
+        "",
+      ];
+    });
+    const text = lines.join("\n");
+    downloadBlob(text, `transcript-${timestampSlug()}.txt`);
+  }, [session.transcript]);
+
+  const handleDownloadOriginalAudio = useCallback(() => {
+    const blob = session.recording?.srcBlob;
+    if (!blob) return;
+    const ext = audioExtension(session.recording!.mime);
+    const ts = timestampSlug(new Date(session.recording!.startedAt));
+    downloadBlob(blob, `original-${srcLang}-${ts}.${ext}`);
+  }, [session.recording, srcLang]);
+
+  const handleDownloadTranslatedAudio = useCallback(() => {
+    const blob = session.recording?.tgtBlob;
+    if (!blob) return;
+    const ext = audioExtension(session.recording!.mime);
+    const ts = timestampSlug(new Date(session.recording!.startedAt));
+    downloadBlob(blob, `translated-${tgtLang}-${ts}.${ext}`);
+  }, [session.recording, tgtLang]);
+
   useKeyboardShortcuts({
     onToggle: () => void handleToggle(),
     onStop: () => {
@@ -135,7 +170,12 @@ export function Translator() {
         sourceLanguage={srcLang}
         targetLanguage={tgtLang}
         transcriptCount={session.transcript.length}
+        hasOriginalAudio={Boolean(session.recording?.srcBlob)}
+        hasTranslatedAudio={Boolean(session.recording?.tgtBlob)}
         onClear={session.clearTranscript}
+        onDownloadTranscript={handleDownloadTranscript}
+        onDownloadOriginalAudio={handleDownloadOriginalAudio}
+        onDownloadTranslatedAudio={handleDownloadTranslatedAudio}
       />
 
       <main className={styles.main}>

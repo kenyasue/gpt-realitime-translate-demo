@@ -28,7 +28,12 @@ export type TopBarProps = {
   sourceLanguage: string;
   targetLanguage: string;
   transcriptCount: number;
+  hasOriginalAudio: boolean;
+  hasTranslatedAudio: boolean;
   onClear: () => void;
+  onDownloadTranscript: () => void;
+  onDownloadOriginalAudio: () => void;
+  onDownloadTranslatedAudio: () => void;
 };
 
 export function TopBar({
@@ -36,7 +41,12 @@ export function TopBar({
   sourceLanguage,
   targetLanguage,
   transcriptCount,
+  hasOriginalAudio,
+  hasTranslatedAudio,
   onClear,
+  onDownloadTranscript,
+  onDownloadOriginalAudio,
+  onDownloadTranslatedAudio,
 }: TopBarProps) {
   const src = findLanguage(sourceLanguage);
   const tgt = findLanguage(targetLanguage);
@@ -74,6 +84,33 @@ export function TopBar({
       <span className={styles.spacer} />
 
       <div className={styles.topActions}>
+        <button
+          type="button"
+          className={cn(styles.ghostBtn, "mono")}
+          onClick={onDownloadTranscript}
+          disabled={transcriptCount === 0}
+          title="Download transcript as .txt"
+        >
+          TRANSCRIPT
+        </button>
+        <button
+          type="button"
+          className={cn(styles.ghostBtn, "mono")}
+          onClick={onDownloadOriginalAudio}
+          disabled={!hasOriginalAudio}
+          title="Download original microphone audio"
+        >
+          SRC AUDIO
+        </button>
+        <button
+          type="button"
+          className={cn(styles.ghostBtn, "mono")}
+          onClick={onDownloadTranslatedAudio}
+          disabled={!hasTranslatedAudio}
+          title="Download translated audio"
+        >
+          TGT AUDIO
+        </button>
         <button
           type="button"
           className={cn(styles.ghostBtn, "mono")}
