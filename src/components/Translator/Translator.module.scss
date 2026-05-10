@@ -1,0 +1,108 @@
+@use "variables" as *;
+
+.root {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.main {
+  display: grid;
+  grid-template-columns: 40% minmax(0, 40%) 20%;
+  min-height: 0;
+}
+.main > * {
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.center {
+  padding: 28px 28px 24px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 18px;
+  border-right: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  min-height: 0;
+  min-width: 0;
+}
+
+.langPair {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+
+.swap {
+  width: 44px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--fg-1);
+  cursor: pointer;
+  display: grid;
+  place-items: center;
+  transition: background 150ms, transform 200ms, border-color 150ms;
+}
+
+.waves {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 14px;
+  min-height: 0;
+}
+.swap:hover:not(:disabled) {
+  background: var(--bg-3);
+  color: var(--fg-0);
+  transform: rotate(180deg);
+}
+.swap:disabled {
+  opacity: 0.35;
+  cursor: not-allowed;
+}
+
+.errorBanner {
+  position: absolute;
+  bottom: 18px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 50;
+  background: oklch(0.22 0.020 35);
+  border: 1px solid var(--accent-warn);
+  color: var(--fg-0);
+  padding: 10px 16px;
+  border-radius: 10px;
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  box-shadow: var(--shadow-2);
+  max-width: 460px;
+}
+
+.audio {
+  /* hidden audio element drives setSinkId + volume.
+     Avoid display:none — some browsers skip autoplay/track activation for it.
+     Off-screen positioning keeps it laid out and audible. */
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  opacity: 0;
+  pointer-events: none;
+  left: -9999px;
+}
+
+@media (max-width: $bp-lg) {
+  .main { grid-template-columns: 36% minmax(0, 42%) 22%; }
+}
+@media (max-width: $bp-md) {
+  .main { grid-template-columns: 1fr; }
+  .center {
+    border-left: 0;
+    border-right: 0;
+    padding: 18px 16px;
+  }
+}

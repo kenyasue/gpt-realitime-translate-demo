@@ -25,20 +25,16 @@ Read this file before editing code. Keep it short; update it when assumptions ch
 ## API quick reference (so you don't have to re-fetch)
 
 - **Server endpoint to mint a session**: `POST https://api.openai.com/v1/realtime/translations/client_secrets`
-  Body skeleton:
+  Body — **only these fields are accepted**; sending `session.type` or `session.audio.input.format` returns 400 "Unknown parameter":
   ```json
   {
     "session": {
-      "type": "realtime.translation",
       "model": "gpt-realtime-translate",
-      "audio": {
-        "input":  { "format": { "type": "pcm16", "rate": 24000 } },
-        "output": { "format": { "type": "pcm16", "rate": 24000 }, "language": "<targetLanguage>" }
-      }
+      "audio": { "output": { "language": "<targetLanguage>" } }
     }
   }
   ```
-  Returns `{ client_secret: { value, expires_at }, session: { id, ... } }`.
+  Returns `{ value, expires_at, session: { id, ... } }` (the secret is at the **top level** as `value`, not nested under `client_secret`). Our client handles both shapes.
 - **WebRTC SDP exchange**: `POST https://api.openai.com/v1/realtime/translations/calls?model=gpt-realtime-translate`
   Headers: `Authorization: Bearer <client_secret.value>`, `Content-Type: application/sdp`, body is the local SDP offer. Response body is the SDP answer.
 - **Datachannel events we read**: `session.input_transcript.delta`, `session.input_transcript.completed`, `session.output_transcript.delta`, `session.output_transcript.completed`, `error`. Audio comes via the WebRTC `track` event, **not** via `output_audio.delta` (we ignore that path).

@@ -1,0 +1,105 @@
+.picker {
+  position: relative;
+}
+
+.trigger {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms, border-color 150ms;
+  box-shadow: var(--shadow-1);
+  color: var(--fg-0);
+}
+.trigger:hover {
+  background: var(--bg-2);
+  border-color: var(--bg-3);
+}
+
+.flag {
+  font-weight: 600;
+  font-size: 13px;
+  letter-spacing: 0.04em;
+  padding: 6px 8px;
+  border-radius: 6px;
+  background: oklch(1 0 0 / 0.04);
+  border: 1px solid var(--line);
+}
+.flagIn  { color: var(--accent-in); }
+.flagOut { color: var(--accent-out); }
+
+.text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+.caption {
+  font-size: 10px;
+  color: var(--fg-2);
+  letter-spacing: 0.08em;
+}
+.name {
+  font-size: 16px;
+  font-weight: 500;
+}
+.caret {
+  color: var(--fg-2);
+  font-size: 12px;
+}
+
+.menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0;
+  right: 0;
+  z-index: 30;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+.menuInner {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+}
+.item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px;
+  align-items: center;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--fg-1);
+  cursor: pointer;
+  transition: background 100ms;
+}
+.item:hover  { background: var(--bg-2); }
+.itemActive  { background: var(--bg-2); }
+.itemName {
+  font-size: 14px;
+  font-weight: 500;
+  color: var(--fg-0);
+}
+.itemRegion {
+  font-size: 10.5px;
+  color: var(--fg-2);
+  letter-spacing: 0.04em;
+}
+.check {
+  color: var(--accent-in);
+  font-size: 8px;
+}

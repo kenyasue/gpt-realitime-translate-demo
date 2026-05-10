@@ -1,0 +1,24 @@
+// Runtime CSS custom properties — copied verbatim from doc/design.html.
+// These are the single source of truth for colours and shadows.
+
+:root {
+  // soft, low-chroma dark palette
+  --bg-0: oklch(0.17 0.012 270);
+  --bg-1: oklch(0.21 0.014 270);
+  --bg-2: oklch(0.24 0.016 270);
+  --bg-3: oklch(0.28 0.018 270);
+  --line:      oklch(0.32 0.020 270);
+  --line-soft: oklch(0.28 0.018 270 / 0.6);
+  --fg-0: oklch(0.97 0.005 270);
+  --fg-1: oklch(0.82 0.010 270);
+  --fg-2: oklch(0.62 0.012 270);
+  --fg-3: oklch(0.45 0.014 270);
+
+  // soft accents — same chroma/lightness, vary hue
+  --accent-in:   oklch(0.78 0.085 285);  // lavender · input
+  --accent-out:  oklch(0.80 0.080 200);  // teal     · output
+  --accent-warn: oklch(0.78 0.090 35);   // coral    · warn
+
+  --shadow-1: 0 1px 0 oklch(1 0 0 / 0.04) inset, 0 1px 2px oklch(0 0 0 / 0.4);
+  --shadow-2: 0 10px 40px -10px oklch(0 0 0 / 0.6);
+}

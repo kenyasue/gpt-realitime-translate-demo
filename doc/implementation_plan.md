@@ -139,19 +139,13 @@ src/
      ```json
      {
        "session": {
-         "type": "realtime.translation",
          "model": "gpt-realtime-translate",
-         "audio": {
-           "input":  { "format": { "type": "pcm16", "rate": 24000 } },
-           "output": { "format": { "type": "pcm16", "rate": 24000 }, "language": "<targetLanguage>" }
-         }
+         "audio": { "output": { "language": "<targetLanguage>" } }
        }
      }
      ```
-  3. Return only the response body fields the client needs:
-     ```ts
-     { client_secret: { value, expires_at }, session: { id, model, ... } }
-     ```
+     Note: the schema is intentionally minimal. Sending `session.type` or `session.audio.input.format` returns HTTP 400 "Unknown parameter".
+  3. Forward the upstream JSON to the client. The secret may arrive as `{ value, expires_at }` at the top level or nested under `client_secret` depending on API version — `RealtimeClient.mintSession` accepts both.
 - **Cache**: `cache: 'no-store'` and `export const dynamic = 'force-dynamic'`.
 - **Errors**: surface OpenAI's status code; redact upstream error bodies in production.
 
