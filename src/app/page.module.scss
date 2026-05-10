@@ -1,0 +1,45 @@
+@use "variables" as *;
+@use "mixins" as *;
+
+.main {
+  @include flex-center;
+  min-height: 100vh;
+  padding: $space-8 $space-4;
+}
+
+.hero {
+  max-width: 640px;
+  text-align: center;
+}
+
+.title {
+  font-size: 2.25rem;
+  margin: 0 0 $space-4;
+  letter-spacing: -0.02em;
+
+  @include respond-above($bp-md) {
+    font-size: 3rem;
+  }
+}
+
+.subtitle {
+  color: $color-muted;
+  margin: 0 0 $space-8;
+  font-size: 1.125rem;
+}
+
+.cta {
+  display: inline-block;
+  padding: $space-3 $space-6;
+  border: 1px solid $color-border;
+  border-radius: 8px;
+  color: $color-fg;
+  background: transparent;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    border-color: $color-accent;
+    background: rgba(59, 130, 246, 0.08);
+    text-decoration: none;
+  }
+}

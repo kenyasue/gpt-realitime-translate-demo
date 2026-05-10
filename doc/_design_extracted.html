@@ -1,0 +1,1667 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<title>Echo — Realtime Translator</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin="">
+<style>/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("20d87655-e0ac-4ec4-93cd-10cd1932d5e0") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("b9eb51ae-15b2-42ae-8dd3-a5c95d07125d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 300;
+  font-display: swap;
+  src: url("5c3d8aca-047f-48e8-92ec-05db3bd52b6c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("20d87655-e0ac-4ec4-93cd-10cd1932d5e0") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("b9eb51ae-15b2-42ae-8dd3-a5c95d07125d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("5c3d8aca-047f-48e8-92ec-05db3bd52b6c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("20d87655-e0ac-4ec4-93cd-10cd1932d5e0") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("b9eb51ae-15b2-42ae-8dd3-a5c95d07125d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("5c3d8aca-047f-48e8-92ec-05db3bd52b6c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("20d87655-e0ac-4ec4-93cd-10cd1932d5e0") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("b9eb51ae-15b2-42ae-8dd3-a5c95d07125d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+  src: url("5c3d8aca-047f-48e8-92ec-05db3bd52b6c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("20d87655-e0ac-4ec4-93cd-10cd1932d5e0") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("b9eb51ae-15b2-42ae-8dd3-a5c95d07125d") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url("5c3d8aca-047f-48e8-92ec-05db3bd52b6c") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("01b3d919-194d-4c17-af27-d1cf076559ad") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("511682ef-5d64-4557-a933-35424a80c329") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url("86618712-b9fa-47bf-9654-be41dfc96ba3") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* cyrillic */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("01b3d919-194d-4c17-af27-d1cf076559ad") format('woff2');
+  unicode-range: U+0301, U+0400-045F, U+0490-0491, U+04B0-04B1, U+2116;
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("511682ef-5d64-4557-a933-35424a80c329") format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF, U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Geist Mono';
+  font-style: normal;
+  font-weight: 500;
+  font-display: swap;
+  src: url("86618712-b9fa-47bf-9654-be41dfc96ba3") format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+</style>
+<style>/* ============================================================
+   Echo — Realtime translator · dark soft theme
+   ============================================================ */
+
+.root {
+  height: 100vh;
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+}
+
+/* ---------- Top bar ---------- */
+.topbar {
+  display: grid;
+  grid-template-columns: auto 1fr auto 1fr auto;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 20px;
+  border-bottom: 1px solid var(--line-soft);
+  background: linear-gradient(180deg, oklch(0.18 0.012 270 / 0.9), oklch(0.17 0.012 270 / 0.7));
+  backdrop-filter: blur(8px);
+}
+/* desktop: hide drawer toggles */
+.drawer-toggle { display: none; }
+.icon-btn {
+  width: 38px; height: 38px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  color: var(--fg-1);
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms, color 150ms;
+}
+.icon-btn:hover { background: var(--bg-2); color: var(--fg-0); border-color: var(--bg-3); }
+.icon-btn.is-on { background: var(--bg-2); border-color: oklch(0.40 0.020 270); color: var(--fg-0); }
+.brand { display: flex; align-items: center; gap: 12px; }
+.brand-mark {
+  width: 36px; height: 36px;
+  display: grid; place-items: center;
+  border-radius: 10px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow-1);
+}
+.brand-name { font-weight: 600; letter-spacing: -0.01em; font-size: 15px; }
+.brand-sub  { color: var(--fg-2); font-size: 11px; letter-spacing: 0.02em; }
+
+.status-pill {
+  justify-self: center;
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 7px 14px 7px 12px;
+  border-radius: 999px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  font-size: 11.5px; color: var(--fg-1);
+  letter-spacing: 0.05em;
+  box-shadow: var(--shadow-1);
+}
+.status-pill .dim { color: var(--fg-2); letter-spacing: 0.04em; }
+.status-sep { color: var(--fg-3); }
+.status-dot {
+  width: 8px; height: 8px; border-radius: 999px;
+  background: var(--fg-3);
+  box-shadow: 0 0 0 0 transparent;
+  transition: background 200ms ease;
+}
+.status-dot.ph-listening   { background: var(--accent-in);  animation: pulse 1.4s ease-out infinite; }
+.status-dot.ph-translating { background: var(--accent-warn);animation: pulse 0.9s ease-out infinite; }
+.status-dot.ph-speaking    { background: var(--accent-out); animation: pulse 1.4s ease-out infinite; }
+
+@keyframes pulse {
+  0%   { box-shadow: 0 0 0 0 currentColor; opacity: 1; }
+  100% { box-shadow: 0 0 0 10px transparent; opacity: 0.95; }
+}
+
+.top-actions { justify-self: end; display: flex; gap: 8px; }
+.ghost-btn {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--fg-1);
+  padding: 7px 12px; border-radius: 8px;
+  font-size: 11px; letter-spacing: 0.06em;
+  cursor: pointer;
+  transition: background 150ms, border-color 150ms, color 150ms;
+}
+.ghost-btn:hover:not(:disabled) { background: var(--bg-2); border-color: var(--bg-3); color: var(--fg-0); }
+.ghost-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* ---------- Main layout ---------- */
+.main {
+  display: grid;
+  grid-template-columns: 40% minmax(0, 40%) 20%;
+  gap: 0;
+  min-height: 0;
+}
+/* every column needs min-width:0 to clip its contents inside the grid track */
+.main > section,
+.main > aside { min-width: 0; min-height: 0; overflow: hidden; }
+
+/* ---------- Center column ---------- */
+.center {
+  padding: 28px 28px 24px;
+  display: grid;
+  grid-template-rows: auto 1fr auto;
+  gap: 18px;
+  border-right: 1px solid var(--line);
+  border-left: 1px solid var(--line);
+  min-height: 0;
+  min-width: 0;
+}
+
+/* Language pair */
+.lang-pair {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 14px;
+  align-items: stretch;
+}
+.lang-picker { position: relative; }
+.lang-trigger {
+  width: 100%;
+  display: flex; align-items: center; gap: 14px;
+  padding: 14px 16px;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  cursor: pointer;
+  text-align: left;
+  transition: background 150ms, border-color 150ms;
+  box-shadow: var(--shadow-1);
+}
+.lang-trigger:hover { background: var(--bg-2); border-color: var(--bg-3); }
+.lang-picker.left  .lang-flag { color: var(--accent-in); }
+.lang-picker.right .lang-flag { color: var(--accent-out); }
+.lang-flag {
+  font-weight: 600; font-size: 13px;
+  letter-spacing: 0.04em;
+  padding: 6px 8px; border-radius: 6px;
+  background: oklch(1 0 0 / 0.04);
+  border: 1px solid var(--line);
+}
+.lang-text { display: flex; flex-direction: column; gap: 2px; flex: 1; }
+.lang-caption { font-size: 10px; color: var(--fg-2); letter-spacing: 0.08em; }
+.lang-name { font-size: 16px; font-weight: 500; }
+.lang-caret { color: var(--fg-2); font-size: 12px; }
+
+.swap {
+  width: 44px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  color: var(--fg-1);
+  cursor: pointer;
+  display: grid; place-items: center;
+  transition: background 150ms, transform 200ms, border-color 150ms;
+}
+.swap:hover { background: var(--bg-3); color: var(--fg-0); transform: rotate(180deg); }
+
+.lang-menu {
+  position: absolute;
+  top: calc(100% + 6px);
+  left: 0; right: 0;
+  z-index: 30;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  box-shadow: var(--shadow-2);
+  overflow: hidden;
+}
+.lang-menu-inner {
+  max-height: 320px;
+  overflow-y: auto;
+  padding: 6px;
+}
+.lang-item {
+  width: 100%;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 12px; align-items: center;
+  padding: 10px 12px;
+  background: transparent;
+  border: 0;
+  border-radius: 8px;
+  text-align: left;
+  color: var(--fg-1);
+  cursor: pointer;
+  transition: background 100ms;
+}
+.lang-item:hover { background: var(--bg-2); }
+.lang-item.is-active { background: var(--bg-2); }
+.lang-item-name { font-size: 14px; font-weight: 500; color: var(--fg-0); }
+.lang-item-region { font-size: 10.5px; color: var(--fg-2); letter-spacing: 0.04em; }
+.lang-check { color: var(--accent-in); font-size: 8px; }
+
+/* Waves */
+.waves {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  gap: 14px;
+  min-height: 0;
+}
+.wave-wrap {
+  position: relative;
+  background: var(--bg-1);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: var(--shadow-1);
+  min-height: 120px;
+}
+.wave-wrap.out { background: var(--bg-1); }
+.wave-canvas { width: 100%; height: 100%; display: block; }
+.wave-label {
+  position: absolute;
+  top: 12px; left: 16px;
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 11px; letter-spacing: 0.08em;
+  color: var(--fg-2);
+}
+.wave-dot { width: 7px; height: 7px; border-radius: 999px; }
+.wave-dot.in  { background: var(--accent-in); }
+.wave-dot.out { background: var(--accent-out); }
+.wave-meter {
+  margin-left: 8px;
+  padding: 1px 6px;
+  border-radius: 4px;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--fg-1);
+  font-size: 10px;
+}
+.wave-err {
+  position: absolute;
+  bottom: 12px; right: 16px;
+  font-size: 10px; color: var(--accent-warn);
+  letter-spacing: 0.05em;
+}
+
+/* Start button */
+.start-row { display: flex; justify-content: center; }
+.start-btn {
+  display: inline-flex; align-items: center; gap: 16px;
+  padding: 14px 24px 14px 14px;
+  background: linear-gradient(180deg, var(--bg-2), var(--bg-1));
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  cursor: pointer;
+  color: var(--fg-0);
+  box-shadow: var(--shadow-1), 0 8px 24px -16px oklch(0 0 0 / 0.7);
+  transition: transform 120ms, border-color 200ms, background 200ms, box-shadow 200ms;
+}
+.start-btn:hover { border-color: oklch(0.36 0.020 270); transform: translateY(-1px); }
+.start-btn:active { transform: translateY(0); }
+.start-orb {
+  width: 52px; height: 52px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 30% 30%, oklch(0.30 0.020 270), oklch(0.22 0.014 270));
+  border: 1px solid var(--line);
+  display: grid; place-items: center;
+  color: var(--fg-0);
+  position: relative;
+  transition: background 200ms, box-shadow 200ms;
+}
+.start-orb-inner {
+  position: absolute; inset: 4px;
+  border-radius: 999px;
+  background: radial-gradient(circle at 35% 30%, oklch(1 0 0 / 0.05), transparent 60%);
+  pointer-events: none;
+}
+.start-btn.is-active .start-orb {
+  background: radial-gradient(circle at 30% 30%, oklch(0.86 0.085 285), oklch(0.62 0.085 285));
+  border-color: oklch(0.62 0.085 285);
+  color: oklch(0.20 0.020 270);
+  box-shadow:
+    0 0 0 6px oklch(0.78 0.085 285 / 0.10),
+    0 0 0 14px oklch(0.78 0.085 285 / 0.05),
+    0 10px 30px -8px oklch(0.78 0.085 285 / 0.5);
+  animation: orbPulse 2.2s ease-in-out infinite;
+}
+.start-btn.ph-speaking .start-orb {
+  background: radial-gradient(circle at 30% 30%, oklch(0.88 0.080 200), oklch(0.66 0.080 200));
+  border-color: oklch(0.66 0.080 200);
+  box-shadow:
+    0 0 0 6px oklch(0.80 0.080 200 / 0.10),
+    0 0 0 14px oklch(0.80 0.080 200 / 0.05),
+    0 10px 30px -8px oklch(0.80 0.080 200 / 0.5);
+}
+@keyframes orbPulse {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.04); }
+}
+.start-text { display: flex; flex-direction: column; gap: 2px; }
+.start-title { font-size: 16px; font-weight: 600; letter-spacing: -0.01em; }
+.start-sub   { font-size: 10.5px; color: var(--fg-2); letter-spacing: 0.06em; }
+
+/* ---------- Transcript pane ---------- */
+.transcript-pane {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  background: linear-gradient(180deg, oklch(0.20 0.014 270 / 0.5), oklch(0.18 0.012 270));
+}
+.pane-head {
+  display: flex; justify-content: space-between; align-items: flex-end;
+  padding: 18px 22px 14px;
+  border-bottom: 1px solid var(--line-soft);
+}
+.pane-title { font-size: 14px; font-weight: 600; letter-spacing: -0.01em; }
+.pane-sub { font-size: 10.5px; color: var(--fg-2); letter-spacing: 0.06em; margin-top: 2px; }
+.pane-legend { display: flex; flex-direction: column; gap: 4px; align-items: flex-end; }
+.legend-row { display: inline-flex; align-items: center; gap: 7px; font-size: 10px; color: var(--fg-2); letter-spacing: 0.06em; }
+.legend-dot { width: 7px; height: 7px; border-radius: 999px; }
+.legend-dot.in  { background: var(--accent-in); }
+.legend-dot.out { background: var(--accent-out); }
+
+.transcript {
+  overflow-y: auto;
+  padding: 16px 22px 22px;
+  display: flex; flex-direction: column; gap: 14px;
+  min-height: 0;
+}
+.empty {
+  margin: auto;
+  text-align: center;
+  color: var(--fg-2);
+  max-width: 240px;
+  font-size: 13px;
+  line-height: 1.55;
+  padding: 40px 0;
+}
+.empty p { margin: 0 0 8px; }
+.empty .dim { color: var(--fg-3); font-size: 10.5px; letter-spacing: 0.05em; }
+.empty-eye {
+  width: 56px; height: 56px;
+  margin: 0 auto 18px;
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 30% 30%, oklch(0.30 0.020 270), oklch(0.22 0.014 270));
+  border: 1px solid var(--line);
+  position: relative;
+}
+.empty-eye::after {
+  content: "";
+  position: absolute; inset: 14px;
+  border-radius: 999px;
+  background: linear-gradient(135deg, oklch(0.78 0.085 285), oklch(0.80 0.080 200));
+  opacity: 0.7;
+}
+
+.turn {
+  padding: 12px 14px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-soft);
+  border-radius: 12px;
+  display: flex; flex-direction: column; gap: 8px;
+  animation: fadeUp 280ms ease-out;
+}
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.turn-live {
+  background: linear-gradient(180deg, oklch(0.22 0.014 270), oklch(0.20 0.014 270));
+  border-color: var(--line);
+  box-shadow: 0 0 0 1px oklch(0.78 0.085 285 / 0.10);
+}
+.turn-meta {
+  font-size: 10px; color: var(--fg-2); letter-spacing: 0.06em;
+  display: inline-flex; align-items: center; gap: 6px;
+}
+.turn-meta .dim { color: var(--fg-3); }
+.turn-meta .pulse {
+  width: 6px; height: 6px; border-radius: 999px;
+  background: var(--accent-in);
+  animation: pulse 1.2s ease-out infinite;
+}
+.line {
+  display: grid; grid-template-columns: auto 1fr; gap: 10px;
+  align-items: start;
+  font-size: 14px; line-height: 1.5;
+  color: var(--fg-0);
+}
+.line.src { color: var(--fg-1); }
+.line.tgt { color: var(--fg-0); font-weight: 500; }
+.line.is-interim { color: var(--fg-1); }
+.line-tag {
+  display: inline-block;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 0.04em;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--fg-1);
+  margin-top: 2px;
+}
+.line-tag.in  { color: var(--accent-in); }
+.line-tag.out { color: var(--accent-out); }
+.cursor {
+  display: inline-block;
+  margin-left: 2px;
+  color: var(--accent-in);
+  animation: blink 1.05s steps(2) infinite;
+}
+@keyframes blink { to { opacity: 0; } }
+
+/* ---------- Settings pane ---------- */
+.settings {
+  display: grid;
+  grid-template-rows: auto 1fr;
+  min-height: 0;
+  background: linear-gradient(180deg, oklch(0.19 0.013 270), oklch(0.17 0.012 270));
+}
+.settings-body {
+  padding: 18px 22px 22px;
+  display: flex; flex-direction: column; gap: 18px;
+  overflow-y: auto;
+}
+.control { display: flex; flex-direction: column; gap: 8px; }
+.control-label {
+  font-size: 10.5px; color: var(--fg-2); letter-spacing: 0.08em;
+  display: flex; justify-content: space-between; align-items: center;
+}
+.ctrl-readout {
+  color: var(--fg-1); font-size: 10.5px;
+  padding: 1px 6px; border-radius: 4px;
+  background: var(--bg-2); border: 1px solid var(--line);
+}
+
+/* selects */
+.select-wrap { position: relative; }
+.select-wrap select {
+  width: 100%;
+  appearance: none;
+  -webkit-appearance: none;
+  background: var(--bg-2);
+  border: 1px solid var(--line);
+  color: var(--fg-0);
+  font: inherit;
+  font-size: 13px;
+  padding: 10px 32px 10px 12px;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: border-color 150ms, background 150ms;
+}
+.select-wrap select:hover  { border-color: var(--bg-3); }
+.select-wrap select:focus  { outline: 2px solid oklch(0.78 0.085 285 / 0.35); outline-offset: 1px; border-color: oklch(0.78 0.085 285); }
+.select-caret {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  color: var(--fg-2); pointer-events: none; font-size: 11px;
+}
+
+/* slider */
+.slider-row { display: grid; grid-template-columns: auto 1fr auto; align-items: center; gap: 10px; }
+.slider-icon { color: var(--fg-2); display: grid; place-items: center; }
+input[type="range"] {
+  -webkit-appearance: none; appearance: none;
+  height: 6px;
+  background: linear-gradient(
+    to right,
+    var(--accent-in) 0%,
+    var(--accent-in) var(--pct, 50%),
+    var(--bg-2)  var(--pct, 50%),
+    var(--bg-2)  100%
+  );
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  outline: none;
+}
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none; appearance: none;
+  width: 16px; height: 16px;
+  border-radius: 999px;
+  background: oklch(0.95 0.020 285);
+  border: 1px solid oklch(0.65 0.080 285);
+  box-shadow: 0 1px 4px oklch(0 0 0 / 0.5), 0 0 0 0 oklch(0.78 0.085 285 / 0);
+  cursor: pointer;
+  transition: box-shadow 150ms;
+}
+input[type="range"]:hover::-webkit-slider-thumb,
+input[type="range"]:focus::-webkit-slider-thumb {
+  box-shadow: 0 1px 4px oklch(0 0 0 / 0.5), 0 0 0 6px oklch(0.78 0.085 285 / 0.15);
+}
+input[type="range"]::-moz-range-thumb {
+  width: 16px; height: 16px; border-radius: 999px;
+  background: oklch(0.95 0.020 285);
+  border: 1px solid oklch(0.65 0.080 285);
+  cursor: pointer;
+}
+
+.hr { height: 1px; background: var(--line-soft); margin: 4px 0; }
+
+.meta-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+.meta-cell {
+  padding: 10px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+}
+.meta-key { font-size: 9.5px; color: var(--fg-2); letter-spacing: 0.08em; margin-bottom: 4px; }
+.meta-val { font-size: 13px; color: var(--fg-0); font-weight: 500; }
+.meta-val.is-warn { color: var(--accent-warn); }
+
+.hint {
+  font-size: 10.5px; color: var(--fg-2);
+  letter-spacing: 0.04em;
+  display: flex; align-items: center; gap: 8px;
+  padding: 10px 12px;
+  background: var(--bg-1);
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+}
+.hint-dot { width: 6px; height: 6px; border-radius: 999px; background: var(--accent-out); }
+kbd {
+  font-family: 'Geist Mono', monospace;
+  font-size: 10px;
+  padding: 1px 5px;
+  border: 1px solid var(--line);
+  border-bottom-width: 2px;
+  background: var(--bg-2);
+  color: var(--fg-1);
+  border-radius: 4px;
+  margin: 0 2px;
+}
+
+/* responsive guardrails */
+@media (max-width: 1180px) {
+  .main { grid-template-columns: 40% minmax(0, 40%) 20%; }
+}
+@media (max-width: 860px) {
+  /* show drawer toggles */
+  .drawer-toggle { display: grid; }
+  .topbar { grid-template-columns: auto 1fr auto; padding: 12px 14px; gap: 10px; }
+  /* hide the centered status pill on tight screens */
+  .status-pill { display: none; }
+  .brand-sub { display: none; }
+  .brand-name { font-size: 14px; }
+  .top-actions .ghost-btn { display: none; }
+
+  /* layout becomes single column with drawers overlaying */
+  .main {
+    display: block;
+    position: relative;
+    overflow: hidden;
+  }
+  .center {
+    border-left: 0;
+    border-right: 0;
+    height: 100%;
+    padding: 18px 16px 18px;
+  }
+  .settings,
+  .transcript-pane {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: min(86vw, 380px);
+    z-index: 40;
+    box-shadow: var(--shadow-2);
+    transition: transform 280ms cubic-bezier(0.22, 0.61, 0.36, 1);
+    border-top: 0;
+  }
+  .settings {
+    left: 0;
+    transform: translateX(-105%);
+    border-right: 1px solid var(--line);
+  }
+  .transcript-pane {
+    right: 0;
+    transform: translateX(105%);
+    border-left: 1px solid var(--line);
+  }
+  .main.show-left  .settings        { transform: translateX(0); }
+  .main.show-right .transcript-pane { transform: translateX(0); }
+
+  .drawer-scrim {
+    position: absolute;
+    inset: 0;
+    background: oklch(0 0 0 / 0.45);
+    backdrop-filter: blur(2px);
+    z-index: 35;
+    animation: scrimIn 220ms ease-out;
+  }
+  @keyframes scrimIn { from { opacity: 0; } to { opacity: 1; } }
+}
+@media (max-width: 520px) {
+  .lang-pair { grid-template-columns: 1fr auto 1fr; gap: 8px; }
+  .lang-trigger { padding: 11px 12px; gap: 10px; }
+  .lang-name { font-size: 14px; }
+  .swap { width: 40px; }
+  .start-btn { padding: 12px 18px 12px 12px; }
+  .start-title { font-size: 14px; }
+  .start-orb { width: 46px; height: 46px; }
+}
+</style>
+<style>
+  :root {
+    /* soft, low-chroma dark palette */
+    --bg-0: oklch(0.17 0.012 270);
+    --bg-1: oklch(0.21 0.014 270);
+    --bg-2: oklch(0.24 0.016 270);
+    --bg-3: oklch(0.28 0.018 270);
+    --line: oklch(0.32 0.020 270);
+    --line-soft: oklch(0.28 0.018 270 / 0.6);
+    --fg-0: oklch(0.97 0.005 270);
+    --fg-1: oklch(0.82 0.010 270);
+    --fg-2: oklch(0.62 0.012 270);
+    --fg-3: oklch(0.45 0.014 270);
+    /* soft accents — same chroma/lightness, vary hue */
+    --accent-in: oklch(0.78 0.085 285);   /* soft lavender — input */
+    --accent-out: oklch(0.80 0.080 200);  /* soft teal — output */
+    --accent-warn: oklch(0.78 0.090 35);  /* soft coral */
+    --shadow-1: 0 1px 0 oklch(1 0 0 / 0.04) inset, 0 1px 2px oklch(0 0 0 / 0.4);
+    --shadow-2: 0 10px 40px -10px oklch(0 0 0 / 0.6);
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; height: 100%; background: var(--bg-0); color: var(--fg-0); }
+  body {
+    font-family: 'Geist', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-feature-settings: "ss01", "cv11";
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overflow: hidden;
+  }
+  .mono { font-family: 'Geist Mono', ui-monospace, monospace; }
+  /* subtle ambient gradient */
+  body::before {
+    content: "";
+    position: fixed; inset: 0;
+    background:
+      radial-gradient(900px 600px at 18% 8%, oklch(0.78 0.085 285 / 0.06), transparent 60%),
+      radial-gradient(900px 600px at 88% 92%, oklch(0.80 0.080 200 / 0.05), transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+  }
+  #app { position: relative; z-index: 1; height: 100vh; }
+  button { font-family: inherit; color: inherit; }
+  /* scrollbar */
+  ::-webkit-scrollbar { width: 8px; height: 8px; }
+  ::-webkit-scrollbar-track { background: transparent; }
+  ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 8px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--bg-3); }
+</style>
+</head>
+<body>
+<div id="app"></div>
+
+
+
+<script src="61ada96f-9bf5-4df3-9cdc-b3407263172a" integrity="sha384-hD6/rw4ppMLGNu3tX5cjIb+uRZ7UkRJ6BPkLpg4hAu/6onKUg4lLsHAs9EBPT82L" crossorigin="anonymous"></script>
+<script src="f13af4c4-fc44-403d-a90a-546801223903" integrity="sha384-u6aeetuaXnQ38mYT8rp6sbXaQe3NL9t+IBXmnYxwkUI2Hw4bsp2Wvmx4yRQF1uAm" crossorigin="anonymous"></script>
+<script src="920786d2-edd9-42ac-86b2-7afed106c73b" integrity="sha384-m08KidiNqLdpJqLq95G/LEi8Qvjl/xUYll3QILypMoQ65QorJ9Lvtp2RXYGBFj1y" crossorigin="anonymous"></script>
+
+<script type="text/babel" data-presets="react">
+const { useState, useEffect, useRef, useCallback, useMemo } = React;
+
+/* ---------- Constants ---------- */
+
+const LANGUAGES = [
+  { code: 'en', label: 'English',    flag: 'EN', region: 'United States' },
+  { code: 'es', label: 'Spanish',    flag: 'ES', region: 'Spain' },
+  { code: 'fr', label: 'French',     flag: 'FR', region: 'France' },
+  { code: 'de', label: 'German',     flag: 'DE', region: 'Germany' },
+  { code: 'it', label: 'Italian',    flag: 'IT', region: 'Italy' },
+  { code: 'pt', label: 'Portuguese', flag: 'PT', region: 'Brazil' },
+  { code: 'ja', label: 'Japanese',   flag: 'JA', region: 'Japan' },
+  { code: 'ko', label: 'Korean',     flag: 'KO', region: 'South Korea' },
+  { code: 'zh', label: 'Chinese',    flag: 'ZH', region: 'Mandarin' },
+  { code: 'ar', label: 'Arabic',     flag: 'AR', region: 'MSA' },
+  { code: 'hi', label: 'Hindi',      flag: 'HI', region: 'India' },
+  { code: 'ru', label: 'Russian',    flag: 'RU', region: 'Russia' },
+  { code: 'nl', label: 'Dutch',      flag: 'NL', region: 'Netherlands' },
+  { code: 'sv', label: 'Swedish',    flag: 'SV', region: 'Sweden' },
+  { code: 'tr', label: 'Turkish',    flag: 'TR', region: 'Turkey' },
+];
+
+/* Simulated phrase pairs for transcript demo when no API is hooked up.
+   Index 0 is in source language code → translation by target language code. */
+const DEMO_PHRASES = {
+  en: [
+    "Hi, where is the nearest train station?",
+    "I'd like to order a coffee with oat milk, please.",
+    "Could you repeat that a little more slowly?",
+    "The meeting starts in fifteen minutes.",
+    "How much does this cost in euros?",
+  ],
+  es: {
+    en: [
+      "Hi, where is the nearest train station?",
+      "I'd like to order a coffee with oat milk, please.",
+      "Could you repeat that a little more slowly?",
+      "The meeting starts in fifteen minutes.",
+      "How much does this cost in euros?",
+    ],
+  },
+};
+
+const TRANSLATIONS = {
+  // source = en
+  en: {
+    es: [
+      "Hola, ¿dónde está la estación de tren más cercana?",
+      "Me gustaría pedir un café con leche de avena, por favor.",
+      "¿Podrías repetir eso un poco más despacio?",
+      "La reunión empieza en quince minutos.",
+      "¿Cuánto cuesta esto en euros?",
+    ],
+    fr: [
+      "Bonjour, où se trouve la gare la plus proche ?",
+      "Je voudrais commander un café au lait d'avoine, s'il vous plaît.",
+      "Pourriez-vous répéter un peu plus lentement ?",
+      "La réunion commence dans quinze minutes.",
+      "Combien cela coûte-t-il en euros ?",
+    ],
+    de: [
+      "Hallo, wo ist der nächste Bahnhof?",
+      "Ich hätte gern einen Kaffee mit Hafermilch, bitte.",
+      "Könntest du das etwas langsamer wiederholen?",
+      "Das Meeting beginnt in fünfzehn Minuten.",
+      "Wie viel kostet das in Euro?",
+    ],
+    ja: [
+      "すみません、いちばん近い駅はどこですか？",
+      "オーツミルクのコーヒーをお願いします。",
+      "もう少しゆっくり繰り返してもらえますか？",
+      "ミーティングは15分後に始まります。",
+      "これはユーロでいくらですか？",
+    ],
+    it: [
+      "Ciao, dov'è la stazione dei treni più vicina?",
+      "Vorrei ordinare un caffè con latte di avena, per favore.",
+      "Potresti ripeterlo un po' più lentamente?",
+      "La riunione inizia tra quindici minuti.",
+      "Quanto costa in euro?",
+    ],
+  },
+};
+
+/* ---------- Helpers ---------- */
+
+const sleep = (ms) => new Promise(r => setTimeout(r, ms));
+
+function classNames(...xs) { return xs.filter(Boolean).join(' '); }
+
+function useInterval(cb, ms, active) {
+  const ref = useRef(cb);
+  useEffect(() => { ref.current = cb; });
+  useEffect(() => {
+    if (!active) return;
+    const id = setInterval(() => ref.current(), ms);
+    return () => clearInterval(id);
+  }, [ms, active]);
+}
+
+/* ---------- Audio wave visualisation ---------- */
+
+/* Live input wave — uses real mic via Web Audio API when available */
+function InputWave({ active, deviceId }) {
+  const canvasRef = useRef(null);
+  const rafRef = useRef(0);
+  const ctxRef = useRef(null);
+  const analyserRef = useRef(null);
+  const streamRef = useRef(null);
+  const dataRef = useRef(null);
+  const [level, setLevel] = useState(0);
+  const [err, setErr] = useState(null);
+
+  // setup mic
+  useEffect(() => {
+    let cancelled = false;
+    async function setup() {
+      try {
+        if (!active) return;
+        const constraints = {
+          audio: deviceId && deviceId !== 'default'
+            ? { deviceId: { exact: deviceId } }
+            : true,
+        };
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        if (cancelled) { stream.getTracks().forEach(t => t.stop()); return; }
+        streamRef.current = stream;
+        const AC = window.AudioContext || window.webkitAudioContext;
+        const ac = new AC();
+        ctxRef.current = ac;
+        const src = ac.createMediaStreamSource(stream);
+        const analyser = ac.createAnalyser();
+        analyser.fftSize = 1024;
+        analyser.smoothingTimeConstant = 0.6;
+        src.connect(analyser);
+        analyserRef.current = analyser;
+        dataRef.current = new Uint8Array(analyser.fftSize);
+      } catch (e) {
+        if (!cancelled) setErr(e.message || 'mic blocked');
+      }
+    }
+    setup();
+    return () => {
+      cancelled = true;
+      if (streamRef.current) { streamRef.current.getTracks().forEach(t => t.stop()); streamRef.current = null; }
+      if (ctxRef.current)    { ctxRef.current.close(); ctxRef.current = null; }
+      analyserRef.current = null;
+    };
+  }, [active, deviceId]);
+
+  // draw loop
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = r.width * dpr;
+      canvas.height = r.height * dpr;
+    }
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    // history of bar heights for nicer flow
+    const N_BARS = 64;
+    const history = new Array(N_BARS).fill(0);
+
+    function draw(t) {
+      rafRef.current = requestAnimationFrame(draw);
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      let amp = 0;
+      if (active && analyserRef.current && dataRef.current) {
+        analyserRef.current.getByteTimeDomainData(dataRef.current);
+        let sum = 0;
+        for (let i = 0; i < dataRef.current.length; i++) {
+          const v = (dataRef.current[i] - 128) / 128;
+          sum += v * v;
+        }
+        amp = Math.sqrt(sum / dataRef.current.length); // rms ~ 0..1
+      } else if (active) {
+        // fallback synthetic
+        amp = 0.15 + 0.1 * Math.sin(t * 0.005);
+      } else {
+        amp = 0.04;
+      }
+      setLevel(amp);
+
+      // shift history left, push new sample (with frequency variation)
+      history.shift();
+      const noise = (Math.random() - 0.5) * 0.4;
+      history.push(Math.max(0.04, amp * (1 + noise) * 2.4));
+
+      // render bars
+      const pad = 12 * dpr;
+      const innerW = W - pad * 2;
+      const gap = 3 * dpr;
+      const barW = (innerW - gap * (N_BARS - 1)) / N_BARS;
+      const midY = H / 2;
+      for (let i = 0; i < N_BARS; i++) {
+        const h = Math.min(H * 0.85, history[i] * H * 0.7);
+        const x = pad + i * (barW + gap);
+        // soft lavender, with fade at edges
+        const edgeFade = Math.min(1, i / 6) * Math.min(1, (N_BARS - i - 1) / 6);
+        ctx.fillStyle = `oklch(0.78 0.085 285 / ${0.25 + 0.65 * edgeFade})`;
+        ctx.beginPath();
+        const r = Math.min(barW / 2, 4 * dpr);
+        roundedRect(ctx, x, midY - h / 2, barW, h, r);
+        ctx.fill();
+      }
+    }
+    rafRef.current = requestAnimationFrame(draw);
+    return () => { cancelAnimationFrame(rafRef.current); ro.disconnect(); };
+  }, [active]);
+
+  return (
+    <div className="wave-wrap">
+      <canvas ref={canvasRef} className="wave-canvas" />
+      <div className="wave-label">
+        <span className="wave-dot in" />
+        <span className="mono">INPUT</span>
+        <span className="wave-meter mono">{(level * 100).toFixed(0).padStart(2,'0')}</span>
+      </div>
+      {err && <div className="wave-err mono">mic unavailable · {err}</div>}
+    </div>
+  );
+}
+
+/* Output wave — synthetic, follows playback timeline */
+function OutputWave({ active, intensity = 0 }) {
+  const canvasRef = useRef(null);
+  const rafRef = useRef(0);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    const ctx = canvas.getContext('2d');
+    const dpr = window.devicePixelRatio || 1;
+    function resize() {
+      const r = canvas.getBoundingClientRect();
+      canvas.width = r.width * dpr;
+      canvas.height = r.height * dpr;
+    }
+    resize();
+    const ro = new ResizeObserver(resize);
+    ro.observe(canvas);
+
+    const N_BARS = 64;
+    const history = new Array(N_BARS).fill(0);
+
+    function draw(t) {
+      rafRef.current = requestAnimationFrame(draw);
+      const W = canvas.width;
+      const H = canvas.height;
+      ctx.clearRect(0, 0, W, H);
+
+      // synth an envelope-shaped value when speaking
+      let amp;
+      if (active) {
+        // gentle envelope + harmonics
+        const base = 0.25 + 0.20 * Math.sin(t * 0.004);
+        const burst = 0.12 * Math.sin(t * 0.012 + 1.7);
+        const grain = (Math.random() - 0.5) * 0.18;
+        amp = Math.max(0.05, (base + burst + grain) * (0.6 + intensity * 0.8));
+      } else {
+        amp = 0.04;
+      }
+
+      history.shift();
+      history.push(amp * 2.2);
+
+      const pad = 12 * dpr;
+      const innerW = W - pad * 2;
+      const gap = 3 * dpr;
+      const barW = (innerW - gap * (N_BARS - 1)) / N_BARS;
+      const midY = H / 2;
+      for (let i = 0; i < N_BARS; i++) {
+        const h = Math.min(H * 0.85, history[i] * H * 0.7);
+        const x = pad + i * (barW + gap);
+        const edgeFade = Math.min(1, i / 6) * Math.min(1, (N_BARS - i - 1) / 6);
+        ctx.fillStyle = `oklch(0.80 0.080 200 / ${0.25 + 0.65 * edgeFade})`;
+        const r = Math.min(barW / 2, 4 * dpr);
+        roundedRect(ctx, x, midY - h / 2, barW, h, r);
+        ctx.fill();
+      }
+    }
+    rafRef.current = requestAnimationFrame(draw);
+    return () => { cancelAnimationFrame(rafRef.current); ro.disconnect(); };
+  }, [active, intensity]);
+
+  return (
+    <div className="wave-wrap out">
+      <canvas ref={canvasRef} className="wave-canvas" />
+      <div className="wave-label">
+        <span className="wave-dot out" />
+        <span className="mono">OUTPUT</span>
+        <span className="wave-meter mono">{active ? '••' : '00'}</span>
+      </div>
+    </div>
+  );
+}
+
+function roundedRect(ctx, x, y, w, h, r) {
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y,     x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x,     y + h, r);
+  ctx.arcTo(x,     y + h, x,     y,     r);
+  ctx.arcTo(x,     y,     x + w, y,     r);
+  ctx.closePath();
+}
+
+/* ---------- UI: Language picker ---------- */
+
+function LangPicker({ value, onChange, side, accent }) {
+  const [open, setOpen] = useState(false);
+  const ref = useRef(null);
+  const lang = LANGUAGES.find(l => l.code === value) || LANGUAGES[0];
+
+  useEffect(() => {
+    function onDoc(e) { if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+    document.addEventListener('mousedown', onDoc);
+    return () => document.removeEventListener('mousedown', onDoc);
+  }, []);
+
+  return (
+    <div className={`lang-picker ${side}`} ref={ref}>
+      <button className="lang-trigger" onClick={() => setOpen(o => !o)}>
+        <span className="lang-flag mono" style={{ color: accent }}>{lang.flag}</span>
+        <span className="lang-text">
+          <span className="lang-caption mono">{side === 'left' ? 'FROM' : 'TO'}</span>
+          <span className="lang-name">{lang.label}</span>
+        </span>
+        <span className="lang-caret">▾</span>
+      </button>
+      {open && (
+        <div className="lang-menu">
+          <div className="lang-menu-inner">
+            {LANGUAGES.map(l => (
+              <button
+                key={l.code}
+                className={classNames('lang-item', l.code === value && 'is-active')}
+                onClick={() => { onChange(l.code); setOpen(false); }}>
+                <span className="lang-flag mono">{l.flag}</span>
+                <span>
+                  <div className="lang-item-name">{l.label}</div>
+                  <div className="lang-item-region mono">{l.region}</div>
+                </span>
+                {l.code === value && <span className="lang-check">●</span>}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ---------- UI: Device selector (input/output) ---------- */
+
+function DeviceSelect({ kind, value, onChange, devices }) {
+  const list = devices.filter(d => d.kind === kind);
+  return (
+    <label className="control">
+      <span className="control-label mono">
+        {kind === 'audioinput' ? 'MICROPHONE' : 'SPEAKER'}
+      </span>
+      <div className="select-wrap">
+        <select value={value} onChange={e => onChange(e.target.value)}>
+          <option value="default">System default</option>
+          {list.map(d => (
+            <option key={d.deviceId} value={d.deviceId}>
+              {d.label || `${kind} · ${d.deviceId.slice(0,6)}`}
+            </option>
+          ))}
+        </select>
+        <span className="select-caret">▾</span>
+      </div>
+    </label>
+  );
+}
+
+/* ---------- UI: Volume slider ---------- */
+
+function VolumeSlider({ value, onChange }) {
+  return (
+    <label className="control">
+      <span className="control-label mono">
+        OUTPUT VOLUME <span className="ctrl-readout mono">{Math.round(value * 100)}</span>
+      </span>
+      <div className="slider-row">
+        <span className="slider-icon" aria-hidden>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M5 9v6h4l5 4V5L9 9H5z" />
+          </svg>
+        </span>
+        <input
+          type="range" min="0" max="1" step="0.01"
+          value={value}
+          onChange={e => onChange(parseFloat(e.target.value))}
+          style={{ '--pct': `${value * 100}%` }}
+        />
+        <span className="slider-icon" aria-hidden>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5">
+            <path d="M5 9v6h4l5 4V5L9 9H5z" />
+            <path d="M16 8a5 5 0 010 8" />
+            <path d="M19 5a9 9 0 010 14" />
+          </svg>
+        </span>
+      </div>
+    </label>
+  );
+}
+
+/* ---------- App ---------- */
+
+function getDemoText(srcLang) {
+  return DEMO_PHRASES[srcLang] || DEMO_PHRASES.en;
+}
+function getTranslation(srcLang, tgtLang, idx) {
+  // try direct
+  const t = TRANSLATIONS[srcLang]?.[tgtLang]?.[idx];
+  if (t) return t;
+  // fallback en→tgt
+  const fb = TRANSLATIONS.en?.[tgtLang]?.[idx];
+  if (fb) return fb;
+  // last-ditch echo
+  return getDemoText('en')[idx];
+}
+
+function App() {
+  /* core state machine: idle → listening → translating → speaking → listening */
+  const [phase, setPhase] = useState('idle'); // idle | listening | translating | speaking | error
+  const [active, setActive] = useState(false);
+
+  const [srcLang, setSrcLang] = useState('en');
+  const [tgtLang, setTgtLang] = useState('es');
+
+  const [inputDevice, setInputDevice]   = useState('default');
+  const [outputDevice, setOutputDevice] = useState('default');
+  const [volume, setVolume]             = useState(0.8);
+
+  const [devices, setDevices] = useState([]);
+  const [permState, setPermState] = useState('prompt'); // prompt | granted | denied
+
+  // mobile drawer state
+  const [mobileLeft, setMobileLeft]   = useState(false);
+  const [mobileRight, setMobileRight] = useState(false);
+  // close one drawer when the other opens (mobile only)
+  const openLeft  = () => { setMobileLeft(true);  setMobileRight(false); };
+  const openRight = () => { setMobileRight(true); setMobileLeft(false); };
+  const closeDrawers = () => { setMobileLeft(false); setMobileRight(false); };
+
+  const [transcript, setTranscript] = useState([]); // [{ id, src, tgt, srcText, tgtText, status }]
+  const [interimSrc, setInterimSrc] = useState('');
+  const [interimTgt, setInterimTgt] = useState('');
+
+  const transcriptEndRef = useRef(null);
+  const turnIdRef = useRef(0);
+  const cancelRef = useRef(false);
+
+  /* Enumerate devices once we have permission */
+  const enumerate = useCallback(async () => {
+    try {
+      const list = await navigator.mediaDevices.enumerateDevices();
+      setDevices(list);
+    } catch {}
+  }, []);
+
+  useEffect(() => {
+    enumerate();
+    navigator.mediaDevices?.addEventListener?.('devicechange', enumerate);
+    return () => navigator.mediaDevices?.removeEventListener?.('devicechange', enumerate);
+  }, [enumerate]);
+
+  useEffect(() => {
+    transcriptEndRef.current?.scrollTo({ top: 1e9, behavior: 'smooth' });
+  }, [transcript, interimSrc, interimTgt]);
+
+  /* Translation simulator loop — runs while active */
+  useEffect(() => {
+    if (!active) return;
+    cancelRef.current = false;
+
+    async function loop() {
+      let i = 0;
+      while (!cancelRef.current) {
+        // LISTENING phase — interim transcript stream
+        setPhase('listening');
+        const srcText = getDemoText(srcLang)[i % 5];
+        const words = srcText.split(' ');
+        setInterimSrc('');
+        for (let w = 0; w < words.length && !cancelRef.current; w++) {
+          setInterimSrc(words.slice(0, w + 1).join(' '));
+          await sleep(110 + Math.random() * 140);
+        }
+        if (cancelRef.current) return;
+
+        // TRANSLATING phase — brief
+        setPhase('translating');
+        await sleep(500);
+        if (cancelRef.current) return;
+
+        // SPEAKING phase — translation text streams while output plays
+        setPhase('speaking');
+        const tgtText = getTranslation(srcLang, tgtLang, i % 5);
+        const tgtWords = tgtText.split(' ');
+        setInterimTgt('');
+        for (let w = 0; w < tgtWords.length && !cancelRef.current; w++) {
+          setInterimTgt(tgtWords.slice(0, w + 1).join(' '));
+          await sleep(120 + Math.random() * 100);
+        }
+        if (cancelRef.current) return;
+
+        // commit turn
+        const id = ++turnIdRef.current;
+        setTranscript(t => [
+          ...t,
+          { id, src: srcLang, tgt: tgtLang, srcText, tgtText, ts: Date.now() }
+        ]);
+        setInterimSrc('');
+        setInterimTgt('');
+        i++;
+        await sleep(700);
+      }
+    }
+    loop();
+    return () => { cancelRef.current = true; };
+  }, [active, srcLang, tgtLang]);
+
+  const onStart = async () => {
+    if (active) {
+      setActive(false);
+      setPhase('idle');
+      setInterimSrc('');
+      setInterimTgt('');
+      return;
+    }
+    // ask permission so we can actually show waves and enumerate
+    try {
+      const s = await navigator.mediaDevices.getUserMedia({ audio: true });
+      s.getTracks().forEach(t => t.stop());
+      setPermState('granted');
+      enumerate();
+    } catch (e) {
+      setPermState('denied');
+      // continue anyway — we'll show synthetic
+    }
+    setActive(true);
+  };
+
+  const onSwapLangs = () => {
+    setSrcLang(tgtLang);
+    setTgtLang(srcLang);
+  };
+
+  const onClear = () => {
+    setTranscript([]);
+    setInterimSrc('');
+    setInterimTgt('');
+  };
+
+  const phaseLabel = {
+    idle:        'Ready',
+    listening:   'Listening',
+    translating: 'Translating',
+    speaking:    'Speaking',
+    error:       'Error',
+  }[phase];
+
+  const srcLangObj = LANGUAGES.find(l => l.code === srcLang);
+  const tgtLangObj = LANGUAGES.find(l => l.code === tgtLang);
+
+  /* simple "output intensity" tied to phase */
+  const outIntensity = phase === 'speaking' ? 1 : phase === 'translating' ? 0.2 : 0;
+
+  return (
+    <div className="root">
+      {/* Top bar */}
+      <header className="topbar">
+        <button
+          className={`icon-btn drawer-toggle left-toggle ${mobileLeft ? 'is-on' : ''}`}
+          onClick={() => mobileLeft ? closeDrawers() : openLeft()}
+          aria-label="Toggle audio settings"
+          aria-expanded={mobileLeft}>
+          {mobileLeft ? (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+          ) : (
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M4 7h16M4 12h16M4 17h10"/></svg>
+          )}
+        </button>
+        <div className="brand">
+          <span className="brand-mark">
+            <svg viewBox="0 0 28 28" width="22" height="22" fill="none">
+              <circle cx="14" cy="14" r="11" stroke="url(#g)" strokeWidth="1.6"/>
+              <circle cx="14" cy="14" r="5"  stroke="url(#g)" strokeWidth="1.6"/>
+              <defs>
+                <linearGradient id="g" x1="0" y1="0" x2="28" y2="28">
+                  <stop offset="0" stopColor="oklch(0.78 0.085 285)"/>
+                  <stop offset="1" stopColor="oklch(0.80 0.080 200)"/>
+                </linearGradient>
+              </defs>
+            </svg>
+          </span>
+          <div className="brand-text">
+            <div className="brand-name">Echo</div>
+            <div className="brand-sub mono">realtime translator · v0.4</div>
+          </div>
+        </div>
+        <div className="status-pill" data-phase={phase}>
+          <span className={`status-dot ph-${phase}`} />
+          <span className="mono">{phaseLabel.toUpperCase()}</span>
+          <span className="status-sep">·</span>
+          <span className="mono dim">{srcLangObj.flag}→{tgtLangObj.flag}</span>
+        </div>
+        <div className="top-actions">
+          <button className="ghost-btn mono" onClick={onClear} disabled={!transcript.length}>
+            CLEAR
+          </button>
+          <button
+            className={`icon-btn drawer-toggle right-toggle ${mobileRight ? 'is-on' : ''}`}
+            onClick={() => mobileRight ? closeDrawers() : openRight()}
+            aria-label="Toggle transcript"
+            aria-expanded={mobileRight}>
+            {mobileRight ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M6 6l12 12M6 18L18 6"/></svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.7" strokeLinecap="round"><path d="M4 6h16M4 12h16M4 18h16"/></svg>
+            )}
+          </button>
+        </div>
+      </header>
+
+      {/* Main layout */}
+      <main className={`main ${mobileLeft ? 'show-left' : ''} ${mobileRight ? 'show-right' : ''}`}>
+        {(mobileLeft || mobileRight) && (
+          <div className="drawer-scrim" onClick={closeDrawers} aria-hidden="true" />
+        )}
+        {/* Center column */}
+        <section className="center">
+          {/* Language pair */}
+          <div className="lang-pair">
+            <LangPicker value={srcLang} onChange={setSrcLang} side="left" accent="var(--accent-in)" />
+            <button className="swap" onClick={onSwapLangs} title="Swap languages" aria-label="Swap">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M7 4l-3 3 3 3"/>
+                <path d="M4 7h13a3 3 0 013 3"/>
+                <path d="M17 20l3-3-3-3"/>
+                <path d="M20 17H7a3 3 0 01-3-3"/>
+              </svg>
+            </button>
+            <LangPicker value={tgtLang} onChange={setTgtLang} side="right" accent="var(--accent-out)" />
+          </div>
+
+          {/* Waveforms */}
+          <div className="waves">
+            <InputWave  active={active} deviceId={inputDevice} />
+            <OutputWave active={active && phase === 'speaking'} intensity={outIntensity} />
+          </div>
+
+          {/* START button */}
+          <div className="start-row">
+            <button
+              className={classNames('start-btn', active && 'is-active', `ph-${phase}`)}
+              onClick={onStart}
+              aria-pressed={active}>
+              <span className="start-orb">
+                <span className="start-orb-inner" />
+                {active ? (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="currentColor">
+                    <rect x="6" y="6" width="12" height="12" rx="2"/>
+                  </svg>
+                ) : (
+                  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6">
+                    <path d="M12 3v10" strokeLinecap="round"/>
+                    <path d="M5 11a7 7 0 0014 0"/>
+                    <path d="M12 18v3" strokeLinecap="round"/>
+                    <rect x="9" y="3" width="6" height="10" rx="3"/>
+                  </svg>
+                )}
+              </span>
+              <span className="start-text">
+                <span className="start-title">{active ? 'Stop session' : 'Start translating'}</span>
+                <span className="start-sub mono">
+                  {active
+                    ? 'tap to end · session is live'
+                    : 'tap to grant mic & begin'}
+                </span>
+              </span>
+            </button>
+          </div>
+        </section>
+
+        {/* Right: transcript */}
+        <section className="transcript-pane">
+          <div className="pane-head">
+            <div>
+              <div className="pane-title">Transcript</div>
+              <div className="pane-sub mono">live · {transcript.length} turn{transcript.length === 1 ? '' : 's'}</div>
+            </div>
+            <div className="pane-legend">
+              <span className="legend-row"><span className="legend-dot in" /> <span className="mono">SOURCE</span></span>
+              <span className="legend-row"><span className="legend-dot out" /> <span className="mono">TRANSLATION</span></span>
+            </div>
+          </div>
+          <div className="transcript" ref={transcriptEndRef}>
+            {transcript.length === 0 && !interimSrc && !interimTgt && (
+              <div className="empty">
+                <div className="empty-eye" />
+                <p>Start a session and your conversation will stream here, line by line.</p>
+                <p className="mono dim">microphone audio is processed locally for the demo</p>
+              </div>
+            )}
+            {transcript.map(t => (
+              <div className="turn" key={t.id}>
+                <div className="turn-meta mono">
+                  <span>{new Date(t.ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit', second:'2-digit'})}</span>
+                  <span className="dim">·</span>
+                  <span>{LANGUAGES.find(l=>l.code===t.src).flag} → {LANGUAGES.find(l=>l.code===t.tgt).flag}</span>
+                </div>
+                <div className="line src"><span className="line-tag mono in">{LANGUAGES.find(l=>l.code===t.src).flag}</span><span>{t.srcText}</span></div>
+                <div className="line tgt"><span className="line-tag mono out">{LANGUAGES.find(l=>l.code===t.tgt).flag}</span><span>{t.tgtText}</span></div>
+              </div>
+            ))}
+            {(interimSrc || interimTgt) && (
+              <div className="turn turn-live">
+                <div className="turn-meta mono">
+                  <span className="pulse"/>
+                  <span>{phase === 'listening' ? 'hearing you…' : phase === 'translating' ? 'translating…' : 'speaking…'}</span>
+                </div>
+                {interimSrc && <div className="line src is-interim"><span className="line-tag mono in">{srcLangObj.flag}</span><span>{interimSrc}<span className="cursor">▌</span></span></div>}
+                {interimTgt && <div className="line tgt is-interim"><span className="line-tag mono out">{tgtLangObj.flag}</span><span>{interimTgt}<span className="cursor">▌</span></span></div>}
+              </div>
+            )}
+          </div>
+        </section>
+
+        {/* Left: settings */}
+        <aside className="settings">
+          <div className="pane-head">
+            <div>
+              <div className="pane-title">Audio</div>
+              <div className="pane-sub mono">devices · output</div>
+            </div>
+          </div>
+          <div className="settings-body">
+            <DeviceSelect kind="audioinput"  value={inputDevice}  onChange={setInputDevice}  devices={devices} />
+            <DeviceSelect kind="audiooutput" value={outputDevice} onChange={setOutputDevice} devices={devices} />
+            <VolumeSlider value={volume} onChange={setVolume} />
+            <div className="hr" />
+            <div className="meta-grid">
+              <div className="meta-cell">
+                <div className="meta-key mono">MODEL</div>
+                <div className="meta-val">gpt-realtime</div>
+              </div>
+              <div className="meta-cell">
+                <div className="meta-key mono">LATENCY</div>
+                <div className="meta-val">{active ? '~340ms' : '—'}</div>
+              </div>
+              <div className="meta-cell">
+                <div className="meta-key mono">VOICE</div>
+                <div className="meta-val">alloy · soft</div>
+              </div>
+              <div className="meta-cell">
+                <div className="meta-key mono">PERM</div>
+                <div className={classNames('meta-val', permState === 'denied' && 'is-warn')}>
+                  {permState === 'granted' ? 'granted' : permState === 'denied' ? 'denied' : 'pending'}
+                </div>
+              </div>
+            </div>
+            <div className="hint mono">
+              <span className="hint-dot" /> press <kbd>space</kbd> to start · <kbd>esc</kbd> to stop
+            </div>
+          </div>
+        </aside>
+      </main>
+    </div>
+  );
+}
+
+/* Keyboard shortcuts wrapper */
+function Root() {
+  const ref = useRef({});
+  useEffect(() => {
+    function k(e) {
+      if (e.target.matches('input, textarea, select')) return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        document.querySelector('.start-btn')?.click();
+      }
+      if (e.code === 'Escape') {
+        const btn = document.querySelector('.start-btn.is-active');
+        btn?.click();
+      }
+    }
+    window.addEventListener('keydown', k);
+    return () => window.removeEventListener('keydown', k);
+  }, []);
+  return <App />;
+}
+
+ReactDOM.createRoot(document.getElementById('app')).render(<Root />);
+
+</script>
+
+
+</body></html>
