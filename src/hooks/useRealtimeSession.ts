@@ -30,27 +30,29 @@ export type UseRealtimeSessionResult = {
 };
 
 /**
- * Split text into completed sentences and a trailing partial.
+ * Split text into sentences for per-sentence transcript blocks.
  *
- * - Western terminators (`.`, `!`, `?`) only count when followed by whitespace,
- *   so abbreviations like "Mr." don't trigger a false split mid-stream.
+ * - Western terminators (`.`, `!`, `?`) split when followed by whitespace
+ *   to avoid breaking abbreviations like "Mr." or "U.S.".
  * - CJK terminators (`。`, `！`, `？`) always split — those scripts have no
  *   inter-sentence space convention.
- *
- * Use during delta streaming to peel off completed sentences while
- * `remainder` keeps the in-flight tail.
+ * - A trailing remainder without a terminator is also returned as a sentence
+ *   (the caller passes the *finalised* text, so the tail is a real sentence).
  */
-function extractSentences(text: string): { sentences: string[]; remainder: string } {
+function splitSentences(text: string): string[] {
+  const trimmed = text.trim();
+  if (!trimmed) return [];
   const sentences: string[] = [];
   let lastEnd = 0;
-  const re = /[.!?]\s+|[。！？]/g;
-  while (re.exec(text) !== null) {
-    const end = re.lastIndex;
-    const sentence = text.slice(lastEnd, end).trim();
-    if (sentence) sentences.push(sentence);
-    lastEnd = end;
+  const re = /[.!?]\s+|[。！？]\s*/g;
+  while (re.exec(trimmed) !== null) {
+    const piece = trimmed.slice(lastEnd, re.lastIndex).trim();
+    if (piece) sentences.push(piece);
+    lastEnd = re.lastIndex;
   }
-  return { sentences, remainder: text.slice(lastEnd) };
+  const tail = trimmed.slice(lastEnd).trim();
+  if (tail) sentences.push(tail);
+  return sentences;
 }
 
 export function useRealtimeSession(): UseRealtimeSessionResult {
@@ -63,15 +65,12 @@ export function useRealtimeSession(): UseRealtimeSessionResult {
   const [outputStream, setOutputStream] = useState<MediaStream | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  // Sentence-pairing state. The src and tgt streams arrive independently;
-  // we extract complete sentences from each and pair them FIFO so each
-  // commit produces one block with both languages.
-  const srcQueueRef = useRef<string[]>([]); // completed src sentences awaiting a pair
-  const tgtQueueRef = useRef<string[]>([]); // completed tgt sentences awaiting a pair
-  const srcBufRef = useRef("");             // current partial src sentence
-  const tgtBufRef = useRef("");             // current partial tgt sentence
-  const srcDoneRef = useRef(false);         // input_transcript.completed seen for this utterance
-  const tgtDoneRef = useRef(false);         // output_transcript.completed seen for this utterance
+  // Per-utterance accumulators. We commit one or more blocks per utterance,
+  // triggered by target completion (the only reliable end-of-utterance event).
+  // No cross-utterance state — eliminates the desync that caused source or
+  // target to occasionally vanish.
+  const srcBufRef = useRef("");
+  const tgtBufRef = useRef("");
   const turnIdRef = useRef(0);
   const langRef = useRef<{ src: string; tgt: string }>({ src: "en", tgt: "ja" });
 
@@ -94,90 +93,57 @@ export function useRealtimeSession(): UseRealtimeSessionResult {
     });
   }, []);
 
-  // Pair as many sentences as both queues currently support.
-  const tryPair = useCallback(() => {
-    while (srcQueueRef.current.length && tgtQueueRef.current.length) {
-      pushBlock(srcQueueRef.current.shift()!, tgtQueueRef.current.shift()!);
+  const commitUtterance = useCallback(() => {
+    const src = srcBufRef.current.trim();
+    const tgt = tgtBufRef.current.trim();
+    srcBufRef.current = "";
+    tgtBufRef.current = "";
+    setInterimSrc("");
+    setInterimTgt("");
+    if (!src && !tgt) return;
+
+    const srcSentences = splitSentences(src);
+    const tgtSentences = splitSentences(tgt);
+    const count = Math.max(srcSentences.length, tgtSentences.length, 1);
+    console.log(
+      `[useRealtimeSession] commit utterance: ${srcSentences.length} src / ${tgtSentences.length} tgt → ${count} block(s)`
+    );
+    for (let i = 0; i < count; i++) {
+      pushBlock(srcSentences[i] ?? "", tgtSentences[i] ?? "");
     }
   }, [pushBlock]);
 
-  // Once both completed events have fired, dump any remaining sentences
-  // from either queue as solo blocks (mismatched counts can happen when
-  // the model collapses or splits sentences across languages).
-  const drainAfterUtterance = useCallback(() => {
-    if (!srcDoneRef.current || !tgtDoneRef.current) return;
-    while (srcQueueRef.current.length || tgtQueueRef.current.length) {
-      const srcText = srcQueueRef.current.shift() ?? "";
-      const tgtText = tgtQueueRef.current.shift() ?? "";
-      if (!srcText && !tgtText) break;
-      pushBlock(srcText, tgtText);
-    }
-    srcDoneRef.current = false;
-    tgtDoneRef.current = false;
-  }, [pushBlock]);
+  const onSrcDelta = useCallback((delta: string) => {
+    srcBufRef.current += delta;
+    setInterimSrc(srcBufRef.current);
+  }, []);
 
-  const onSrcDelta = useCallback(
-    (delta: string) => {
-      srcBufRef.current += delta;
-      const { sentences, remainder } = extractSentences(srcBufRef.current);
-      if (sentences.length > 0) srcQueueRef.current.push(...sentences);
-      srcBufRef.current = remainder;
-      setInterimSrc(remainder);
-      tryPair();
-    },
-    [tryPair]
-  );
+  const onSrcFinal = useCallback((text: string) => {
+    // Prefer the server-authoritative final transcript when it's provided.
+    if (text) srcBufRef.current = text;
+    setInterimSrc(srcBufRef.current);
+    // Don't commit yet — we wait for target completion to know the
+    // utterance is fully translated.
+  }, []);
 
-  const onTgtDelta = useCallback(
-    (delta: string) => {
-      tgtBufRef.current += delta;
-      const { sentences, remainder } = extractSentences(tgtBufRef.current);
-      if (sentences.length > 0) tgtQueueRef.current.push(...sentences);
-      tgtBufRef.current = remainder;
-      setInterimTgt(remainder);
-      tryPair();
-    },
-    [tryPair]
-  );
-
-  const onSrcFinal = useCallback(
-    (text: string) => {
-      // Server-authoritative text — prefer it over our delta accumulation.
-      const final = text || srcBufRef.current;
-      const { sentences, remainder } = extractSentences(final);
-      if (sentences.length > 0) srcQueueRef.current.push(...sentences);
-      if (remainder.trim()) srcQueueRef.current.push(remainder.trim());
-      srcBufRef.current = "";
-      setInterimSrc("");
-      srcDoneRef.current = true;
-      tryPair();
-      drainAfterUtterance();
-    },
-    [tryPair, drainAfterUtterance]
-  );
+  const onTgtDelta = useCallback((delta: string) => {
+    tgtBufRef.current += delta;
+    setInterimTgt(tgtBufRef.current);
+  }, []);
 
   const onTgtFinal = useCallback(
     (text: string) => {
-      const final = text || tgtBufRef.current;
-      const { sentences, remainder } = extractSentences(final);
-      if (sentences.length > 0) tgtQueueRef.current.push(...sentences);
-      if (remainder.trim()) tgtQueueRef.current.push(remainder.trim());
-      tgtBufRef.current = "";
-      setInterimTgt("");
-      tgtDoneRef.current = true;
-      tryPair();
-      drainAfterUtterance();
+      if (text) tgtBufRef.current = text;
+      // Target completion is the authoritative end-of-utterance signal.
+      // Commit whatever accumulated on both sides.
+      commitUtterance();
     },
-    [tryPair, drainAfterUtterance]
+    [commitUtterance]
   );
 
-  const resetPairingState = useCallback(() => {
-    srcQueueRef.current = [];
-    tgtQueueRef.current = [];
+  const resetUtteranceState = useCallback(() => {
     srcBufRef.current = "";
     tgtBufRef.current = "";
-    srcDoneRef.current = false;
-    tgtDoneRef.current = false;
     setInterimSrc("");
     setInterimTgt("");
   }, []);
@@ -187,7 +153,7 @@ export function useRealtimeSession(): UseRealtimeSessionResult {
       if (clientRef.current) return;
       setError(null);
       langRef.current = { src: sourceLanguage, tgt: targetLanguage };
-      resetPairingState();
+      resetUtteranceState();
 
       const client = new RealtimeClient({
         sourceLanguage,
@@ -203,8 +169,6 @@ export function useRealtimeSession(): UseRealtimeSessionResult {
       client.on("outputtranscriptdelta", onTgtDelta);
       client.on("outputtranscriptfinal", onTgtFinal);
       client.on("unknown", (event) => {
-        // Unknown events are non-fatal; log so the implementer can spot
-        // protocol drift between this code and the live API.
         console.debug("[realtime] unknown event:", event);
       });
       client.on("error", (err) => setError(err.message));
@@ -219,18 +183,19 @@ export function useRealtimeSession(): UseRealtimeSessionResult {
         clientRef.current = null;
       }
     },
-    [onSrcDelta, onSrcFinal, onTgtDelta, onTgtFinal, resetPairingState]
+    [onSrcDelta, onSrcFinal, onTgtDelta, onTgtFinal, resetUtteranceState]
   );
 
   const stop = useCallback(async () => {
     const client = clientRef.current;
     clientRef.current = null;
     if (client) await client.stop();
+    // Capture any in-flight utterance before tearing down state.
+    commitUtterance();
     setInputStream(null);
     setOutputStream(null);
-    resetPairingState();
     setPhase("idle");
-  }, [resetPairingState]);
+  }, [commitUtterance]);
 
   const setLanguages = useCallback((sourceLanguage: string, targetLanguage: string) => {
     langRef.current = { src: sourceLanguage, tgt: targetLanguage };
@@ -239,8 +204,8 @@ export function useRealtimeSession(): UseRealtimeSessionResult {
 
   const clearTranscript = useCallback(() => {
     setTranscript([]);
-    resetPairingState();
-  }, [resetPairingState]);
+    resetUtteranceState();
+  }, [resetUtteranceState]);
 
   useEffect(() => {
     return () => {
