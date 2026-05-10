@@ -7,7 +7,8 @@ transcript.
 
 ## 0. Reference materials
 
-- **Design source**: `doc/Realtime Translator _standalone_.html` (decoded artifact at `doc/_design_extracted.html`).
+- **Canonical design**: [`doc/design.html`](./design.html) — single static HTML file, no JS, no bundler. Open it in a browser to see exactly what the finished app must look like. **All CSS in §10 is copied verbatim from this file.**
+- **Original artifact** (read-only): `doc/Realtime Translator _standalone_.html` — the Claude artifact that produced the design. Kept only as a historical record of the interaction prototype (waveforms drawn on canvas, simulated transcript loop). Don't port from it directly; port from `design.html`.
 - **API guide**: <https://developers.openai.com/api/docs/guides/realtime-translation>.
 - **Existing scaffold**: Next.js 15 App Router + TypeScript + SCSS modules (no Tailwind). See `package.json`, `next.config.ts`, `src/styles/_variables.scss`.
 
@@ -219,46 +220,78 @@ Phase derivation (single source of truth in the hook, not the client):
 - `speaking` while output transcript or audio deltas are arriving.
 - `idle` after `stop()` or no activity for >800ms post-output.
 
-## 8. UI components — port from design
+## 8. UI components — port from `doc/design.html`
 
-The reference `App` in `_design_extracted.html` is one big file. We split it:
+`doc/design.html` is the **canonical visual spec**. Open it in a browser and
+match what you see, pixel-for-pixel. The HTML there is intentionally close to
+what each React component should output — class names, DOM structure, and
+nesting all transfer directly.
+
+**Porting workflow per component**:
+1. Find the matching block in `design.html` (each is delimited by an HTML comment, e.g. `<!-- Top bar -->`).
+2. Copy the markup into `Component.tsx` and translate HTML attributes to JSX (`class` → `className`, `for` → `htmlFor`, self-closing tags, `aria-*` unchanged).
+3. Move the matching CSS rules from `design.html`'s `<style>` into `Component.module.scss`. Keep selectors as-is — they're already scoped by the markup tree.
+4. Replace literal text / attribute values with props or hook state.
+5. Verify by diffing visually against `design.html` in the same browser.
 
 ### 8.1 `Translator.tsx` (top-level client component)
+- Maps to: the `<div class="root">` wrapper.
 - Owns the `useRealtimeSession()` hook.
 - Lifts `srcLang`, `tgtLang`, `inputDevice`, `outputDevice`, `volume`, `mobileLeft`, `mobileRight` state.
-- Renders `<TopBar/>`, `<SettingsPane/>` (left aside), `<CenterColumn/>`, `<Transcript/>`.
+- Renders `<TopBar/>`, `<CenterColumn/>`, `<Transcript/>`, `<SettingsPane/>` in DOM order — the CSS grid (`grid-template-columns: 40% 40% 20%`) handles the visual placement.
 
 ### 8.2 `TopBar.tsx`
-- Brand block + status pill (phase + flag pair) + Clear button + drawer toggles for mobile.
+- Maps to: `<header class="topbar">` in `design.html`.
+- Brand block, status pill (phase + flag pair), Clear button, mobile drawer toggles.
+- The status pill's `<span class="status-dot ph-listening">` class is dynamic: swap `ph-listening` / `ph-translating` / `ph-speaking` from the `phase` prop to drive the pulse colour.
 
 ### 8.3 `LangPicker.tsx`
-- Custom dropdown (button + popover list). Click-outside closes.
-- `LANGUAGES` constant moves to `src/lib/realtime/languages.ts` (15 entries, same as design).
+- Maps to: `<div class="lang-picker left">` and `<div class="lang-picker right">`.
+- The static design shows the closed state. For the open state, render the popover after the trigger:
+  ```tsx
+  <div className={styles['lang-menu']}>
+    <div className={styles['lang-menu-inner']}>
+      {LANGUAGES.map(l => <button className={cn(styles['lang-item'], l.code === value && styles['is-active'])}>...</button>)}
+    </div>
+  </div>
+  ```
+  CSS rules `.lang-menu` / `.lang-menu-inner` / `.lang-item` exist in the original design CSS — copy them from `_design_extracted.html` (lines 357–392) since the static `design.html` only shows the closed state.
+- Click-outside closes (mousedown listener on document).
+- `LANGUAGES` constant moves to `src/lib/realtime/languages.ts` (15 entries — copy the array from `_design_extracted.html` lines 861–877).
 
 ### 8.4 `InputWave.tsx`
-- Replaces the design's standalone analyser path: takes a `MediaStream` from props (the same stream the `RealtimeClient` is using), creates `AudioContext` + `AnalyserNode`, draws 64 rounded bars.
-- DPR-aware canvas, `ResizeObserver`, edge-fade colours `oklch(0.78 0.085 285 / α)`.
+- Maps to: `<div class="wave-wrap">` containing the input SVG.
+- Replace the static `<svg>` group with `<canvas className={styles['wave-canvas']} />`.
+- Takes a `MediaStream` prop (the same stream the `RealtimeClient` is using), creates `AudioContext` + `AnalyserNode` (`fftSize: 1024`, `smoothingTimeConstant: 0.6`), draws 64 rounded bars on each `requestAnimationFrame` tick.
+- DPR-aware canvas (`canvas.width = rect.width * devicePixelRatio`), `ResizeObserver`, edge-fade colours `oklch(0.78 0.085 285 / α)` where `α = 0.25 + 0.65 * edgeFade`.
+- The label overlay (`<div class="wave-label">`) stays as static markup; its `wave-meter` text reads from the analyser RMS state.
 
 ### 8.5 `OutputWave.tsx`
-- Takes the **remote** `MediaStream` from `pc.ontrack`, runs an `AnalyserNode` on it.
-- Same renderer as `InputWave` but with output accent `oklch(0.80 0.080 200 / α)`.
-- Crucially: **drives a single `<audio>` element** (`autoPlay`, `playsInline`, no `muted`). That audio element is what `setSinkId` and `volume` apply to.
+- Maps to: the second `<div class="wave-wrap">` (output bars).
+- Same canvas pattern as `InputWave`, but the analyser is fed the **remote** `MediaStream` from `pc.ontrack`. Use output accent `oklch(0.80 0.080 200 / α)`.
+- Crucially: this component also **owns the single `<audio>` element** that plays the translated audio (`autoPlay`, `playsInline`, no `muted`). That audio element is what `setSinkId` and `volume` apply to. Hide it with `display: none` — it's not visible, only audible.
 
 ### 8.6 `StartButton.tsx`
-- Big pill button with orb. Active variants `is-active`, `ph-speaking`. Pulse animation.
-- Toggles `useRealtimeSession.start()` / `.stop()`.
+- Maps to: `<button class="start-btn is-active">` in `design.html`.
+- Pill button with orb. Modifier classes:
+  - `is-active` when session is running (the design currently shows this state).
+  - `ph-speaking` when phase is speaking (alternate orb colour).
+- Swap the inner SVG between the "mic" icon (idle) and the "stop square" icon (active) — both icons are in `_design_extracted.html` lines 1530–1540.
+- Toggles `useRealtimeSession.start()` / `.stop()` on click.
 
 ### 8.7 `Transcript.tsx`
-- Renders array of completed turns + a "live" turn carrying `interimSrc` / `interimTgt` strings.
-- Auto-scrolls to bottom on new content.
-- Empty state with the gradient eye.
+- Maps to: `<section class="transcript-pane">`.
+- Render the array of completed turns + a "live" turn carrying `interimSrc` / `interimTgt`. The design shows two completed turns plus one interim turn — match that structure exactly.
+- Auto-scroll to bottom on new content (`ref.current.scrollTo({ top: 1e9, behavior: 'smooth' })`).
+- Empty state: when no turns and no interim text, render the `<div class="empty">` with the gradient eye (CSS for `.empty` and `.empty-eye` is in the original design — copy from `_design_extracted.html` lines 520–546). The static `design.html` doesn't show this state because it's pre-populated for visual completeness.
 
 ### 8.8 `SettingsPane.tsx`
-- Two `<select>` elements (input, output) populated from `useDevices()`.
+- Maps to: `<aside class="settings">` in `design.html`.
+- Two `<select>` elements (input, output) populated from `useDevices()`. The design shows hard-coded `<option>` examples — replace with `devices.map(d => <option key={d.deviceId} value={d.deviceId}>{d.label}</option>)`.
 - Output select disabled with hint text on browsers without `setSinkId`.
-- Volume slider (0..1, step 0.01). Applies live via `client.setVolume`.
-- Meta grid: model, latency, voice, permission state.
-- Hint footer with `space` / `esc` keys.
+- Volume slider (0..1, step 0.01). Bind `style={{ '--pct': `${value * 100}%` }}` so the linear-gradient track fills proportionally.
+- Meta grid: model, latency, voice, permission state. Latency cell reads from `pc.getStats()` round-trip-time when active, otherwise `—`.
+- Hint footer with `space` / `esc` keyboard shortcuts.
 
 ## 9. Hooks
 
@@ -277,13 +310,31 @@ The reference `App` in `_design_extracted.html` is one big file. We split it:
 - `Space` → toggle start (when not focused in an input).
 - `Escape` → stop if active.
 
-## 10. Styling — port the design tokens
+## 10. Styling — port the CSS from `doc/design.html`
 
-Replace `src/styles/_variables.scss` with a pure-CSS-custom-properties theme so
-the original `oklch(...)` values from the design transfer 1:1:
+`doc/design.html` contains the entire stylesheet for the app in one `<style>`
+block, organised under labelled section comments. **Don't rewrite it — split
+it.** The plan:
+
+### 10.1 Distribute the rules
+
+| Source block in `design.html`              | Destination                             |
+|--------------------------------------------|-----------------------------------------|
+| `/* Design tokens */` (`:root { … }`)      | `src/styles/_theme.scss`                |
+| `/* Reset + base */`                       | `src/app/globals.scss`                  |
+| `body::before` ambient gradient            | `src/app/globals.scss`                  |
+| Scrollbar rules                            | `src/app/globals.scss`                  |
+| `/* Layout */` (`.root`, `.main`)          | `src/components/Translator/Translator.module.scss` |
+| `/* Top bar */`                            | `src/components/TopBar/TopBar.module.scss` |
+| `/* Center column */` (lang-pair, swap)    | `src/components/Translator/Translator.module.scss` (or split a `CenterColumn` module) |
+| `/* Waveforms */`                          | `src/components/Waveform/Waveform.module.scss` |
+| `/* Start button */`                       | `src/components/StartButton/StartButton.module.scss` |
+| `/* Transcript pane */`                    | `src/components/Transcript/Transcript.module.scss` |
+| `/* Settings */` (controls, slider, meta)  | `src/components/SettingsPane/SettingsPane.module.scss` |
+
+### 10.2 `_theme.scss` (copy verbatim from `design.html`)
 
 ```scss
-// _theme.scss
 :root {
   --bg-0: oklch(0.17 0.012 270);
   --bg-1: oklch(0.21 0.014 270);
@@ -303,24 +354,70 @@ the original `oklch(...)` values from the design transfer 1:1:
 }
 ```
 
-`globals.scss` provides:
-- `box-sizing` reset, `html/body` 100% height, hidden body overflow (single screen).
-- Geist font import via `next/font/google` in `layout.tsx` (no manual `@font-face`).
-- Ambient gradient on `body::before`.
-- Custom scrollbar styling.
+`_variables.scss` keeps Sass-time tokens only (spacing scale, breakpoints).
+Colours are CSS custom properties so future theme switches don't require a
+recompile.
 
-Each component's `.module.scss` `@use "variables" as *;` for shared spacing
-helpers but reads colours via `var(--…)` for live theming flexibility.
+### 10.3 `globals.scss`
 
-### Fonts
-Use `next/font/google` for Geist + Geist Mono and apply via class names in
-`layout.tsx`. Don't ship the woff2 binaries the artifact embedded.
+- Imports `_theme.scss`.
+- `box-sizing` reset, `html/body` 100% height, hidden body overflow (single-screen app).
+- `body::before` ambient gradient (copy from `design.html`).
+- Scrollbar styling.
+- Body `font-family` uses the Geist class added via `next/font/google` in `layout.tsx` (see §10.4).
+
+### 10.4 Fonts
+
+Use `next/font/google` for Geist + Geist Mono in `src/app/layout.tsx`:
+
+```tsx
+import { Geist, Geist_Mono } from 'next/font/google';
+
+const geist     = Geist({ subsets: ['latin'], variable: '--font-geist' });
+const geistMono = Geist_Mono({ subsets: ['latin'], variable: '--font-geist-mono' });
+
+export default function RootLayout({ children }) {
+  return (
+    <html lang="en" className={`${geist.variable} ${geistMono.variable}`}>
+      <body>{children}</body>
+    </html>
+  );
+}
+```
+
+Then in `globals.scss`:
+
+```scss
+body { font-family: var(--font-geist), -apple-system, BlinkMacSystemFont, sans-serif; }
+.mono { font-family: var(--font-geist-mono), ui-monospace, monospace; }
+```
+
+This replaces the Google Fonts CDN `<link>` used in `design.html` (CDN was fine
+for a static mockup; in production we self-host via `next/font` for cache and
+privacy).
+
+### 10.5 Modifier classes referenced from JSX
+
+The static `design.html` shows fixed states. The React components must drive
+these modifier classes from props/state:
+
+| Modifier            | Trigger                                   |
+|---------------------|-------------------------------------------|
+| `.status-dot.ph-listening` / `.ph-translating` / `.ph-speaking` | `phase` prop on `<TopBar/>` |
+| `.start-btn.is-active`     | `phase !== 'idle'`                  |
+| `.start-btn.ph-speaking`   | `phase === 'speaking'`              |
+| `.line.is-interim`         | rendered inside the live (in-progress) turn |
+| `.turn-live`               | the trailing turn while transcript is streaming |
+| `.lang-picker.left` / `.right` | hard-coded per instance (source vs target) |
+
+When in doubt about a state's CSS, search `design.html` for the class — it's a
+single file and `Ctrl-F` is your friend.
 
 ## 11. Phased delivery
 
 | Phase | Scope | Acceptance |
 |-------|-------|------------|
-| **P1 — Visual shell** | Port theme, layout, all components rendering with **mock state** (no API). Drawer behaviour on mobile. Keyboard shortcuts. | The page looks identical to `_design_extracted.html`. Lighthouse a11y ≥ 90. |
+| **P1 — Visual shell** | Port theme, layout, all components rendering with **mock state** (no API). Drawer behaviour on mobile. Keyboard shortcuts. | Side-by-side with `doc/design.html` open in another tab, the running app is visually indistinguishable. Lighthouse a11y ≥ 90. |
 | **P2 — Mic + waves** | `getUserMedia`, real `InputWave`, device enumeration, volume slider wired to a silent `<audio>` element. | Bars react to voice. Switching input device updates the analyser. Permission denial shows `mic unavailable`. |
 | **P3 — Server route** | `/api/session` mints ephemeral token. Client logs the response on Start. | curl-equivalent shows `{ client_secret: {...} }`. |
 | **P4 — WebRTC translate** | Full `RealtimeClient` wired up; remote audio plays; output wave reacts. Phase machine drives status pill. | Speaking English produces translated audio in the chosen target language within ~1s. |
